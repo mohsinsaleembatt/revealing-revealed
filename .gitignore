@@ -155,7 +155,9 @@ __pycache__/
 # Secrets: never commit these
 .env
 .env.*
+!.env.example
 
 # Windows
 Thumbs.db
 .vscode/
+babel.json
