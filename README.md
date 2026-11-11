@@ -1,2 +1,18 @@
-# revealing-revealed
-An open-source learning platform for understanding the Qur'an, beginning with Arabic. Grammar taught through everyday Arabic and then the Qur'anic text, a word-by-word analysis lab with dictionaries, and AI explanations grounded in cited sources. English and Urdu. Built with Next.js, FastAPI and PostgreSQL.
+# Revealing Revealed
+
+A website that teaches the tools for understanding the Qur'an,
+beginning with the Arabic language.
+
+## Principles
+
+- Authenticity first: every piece of content cites a verifiable source.
+- Reverence in design: no ads, no trivialising.
+- Clear, documented, well-tested code.
+
+## Status
+
+Phase 0: project setup.
+
+## Licence
+
+Code: Apache 2.0. Original lessons will use CC BY-SA 4.0.

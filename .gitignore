@@ -147,3 +147,14 @@ vite.config.ts.timestamp-*
 
 # Turbo Repo
 .turbo
+
+# Python
+__pycache__/
+.venv/
+
+# Secrets: never commit these
+.env
+.env.*
+
+# Windows
+Thumbs.db
