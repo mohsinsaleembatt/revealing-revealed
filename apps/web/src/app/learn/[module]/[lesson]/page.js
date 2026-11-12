@@ -5,12 +5,20 @@ import ReviewBadge from "@/components/ReviewBadge";
 import { apiGet } from "@/lib/api";
 import { quranFont } from "@/lib/fonts";
 
+import Quiz from "@/components/Quiz";
+
 export default async function LessonPage({ params }) {
     const { module, lesson: lessonSlug } = await params;
     const lesson = await apiGet(
         `/learn/modules/${encodeURIComponent(module)}/lessons/${encodeURIComponent(lessonSlug)}`
     );
     if (!lesson) notFound();
+
+    const questions =
+        (await apiGet(
+            `/learn/modules/${encodeURIComponent(module)}/lessons/${encodeURIComponent(lessonSlug)}/quiz`,
+            { fresh: true }
+        )) ?? [];
 
     return (
         <article>
@@ -77,6 +85,19 @@ export default async function LessonPage({ params }) {
                     </section>
                 ))}
             </div>
+
+            {questions.length > 0 && (
+                <section className="mt-12">
+                    <h2 className="text-2xl font-semibold">Check your understanding</h2>
+                    <p className="mt-1 text-sm opacity-70">
+                        These questions are generated automatically from the verified
+                        Qur&apos;an data and are still waiting for review.
+                    </p>
+                    <div className="mt-4">
+                        <Quiz questions={questions} />
+                    </div>
+                </section>
+            )}
         </article>
     );
 }

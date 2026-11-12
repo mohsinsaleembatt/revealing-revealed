@@ -10,6 +10,17 @@ from app.database import get_session
 from app.models import Ayah, Lesson, LessonBlock, Module
 from app.schemas import BlockOut, LessonDetail, ModuleOut
 
+from app.models import Ayah, Lesson, LessonBlock, Module, QuizQuestion
+from app.schemas import (
+    AnswerIn,
+    AnswerResult,
+    BlockOut,
+    LessonDetail,
+    ModuleOut,
+    OptionOut,
+    QuestionOut,
+)
+
 router = APIRouter(prefix="/learn", tags=["learn"])
 
 SessionDep = Annotated[Session, Depends(get_session)]
@@ -76,4 +87,62 @@ def get_lesson(
         goal=lesson.goal,
         review_status=lesson.review_status,
         blocks=[block_to_schema(block) for block in lesson.blocks],
+    )
+
+
+@router.get("/modules/{module_slug}/lessons/{lesson_slug}/quiz")
+def get_quiz(
+    module_slug: str, lesson_slug: str, session: SessionDep
+) -> list[QuestionOut]:
+    """Return a lesson's quiz questions. Correct answers are never included."""
+    lesson_id = session.scalar(
+        select(Lesson.id)
+        .join(Module, Lesson.module_id == Module.id)
+        .where(Module.slug == module_slug, Lesson.slug == lesson_slug)
+    )
+    if lesson_id is None:
+        raise HTTPException(status_code=404, detail="Lesson not found")
+
+    questions = session.scalars(
+        select(QuizQuestion)
+        .where(QuizQuestion.lesson_id == lesson_id)
+        .options(selectinload(QuizQuestion.options), selectinload(QuizQuestion.ayah))
+        .order_by(QuizQuestion.id)
+    )
+    return [
+        QuestionOut(
+            id=question.id,
+            question_type=question.question_type,
+            prompt=question.prompt,
+            ayah_text=question.ayah.text_uthmani if question.ayah else None,
+            options=[OptionOut(id=o.id, text=o.text)
+                     for o in question.options],
+        )
+        for question in questions
+    ]
+
+
+@router.post("/questions/{question_id}/check")
+def check_answer(
+    question_id: int, answer: AnswerIn, session: SessionDep
+) -> AnswerResult:
+    """Check one answer. Only now does the server reveal the correct option."""
+    question = session.scalars(
+        select(QuizQuestion)
+        .where(QuizQuestion.id == question_id)
+        .options(selectinload(QuizQuestion.options))
+    ).one_or_none()
+    if question is None:
+        raise HTTPException(status_code=404, detail="Question not found")
+
+    if answer.option_id not in {option.id for option in question.options}:
+        raise HTTPException(
+            status_code=400, detail="That option does not belong to this question"
+        )
+
+    correct = next(option for option in question.options if option.is_correct)
+    return AnswerResult(
+        correct=answer.option_id == correct.id,
+        correct_option_id=correct.id,
+        explanation=question.explanation,
     )

@@ -75,3 +75,26 @@ class LessonDetail(BaseModel):
     goal: str
     review_status: str
     blocks: list[BlockOut]
+
+
+class OptionOut(BaseModel):
+    id: int
+    text: str  # note: the correct answer is deliberately not included
+
+
+class QuestionOut(BaseModel):
+    id: int
+    question_type: str
+    prompt: str
+    ayah_text: str | None = None
+    options: list[OptionOut]
+
+
+class AnswerIn(BaseModel):
+    option_id: int
+
+
+class AnswerResult(BaseModel):
+    correct: bool
+    correct_option_id: int
+    explanation: str

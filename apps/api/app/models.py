@@ -124,3 +124,41 @@ class LessonBlock(Base):
     lesson: Mapped["Lesson"] = relationship(back_populates="blocks")
     ayah: Mapped["Ayah | None"] = relationship()
     source: Mapped["Source | None"] = relationship()
+
+
+class QuizQuestion(Base):
+    """A multiple-choice question, generated from verified data."""
+
+    __tablename__ = "quiz_question"
+
+    id: Mapped[int] = mapped_column(primary_key=True)
+    lesson_id: Mapped[int] = mapped_column(ForeignKey("lesson.id"))
+    # The verse shown with the question, if it has one.
+    ayah_id: Mapped[int | None] = mapped_column(ForeignKey("ayah.id"))
+    question_type: Mapped[str] = mapped_column(String(30))
+    prompt: Mapped[str] = mapped_column(Text)
+    explanation: Mapped[str] = mapped_column(Text)
+    # Generated questions still wait for review, like lessons do.
+    review_status: Mapped[str] = mapped_column(String(20), default="draft")
+
+    ayah: Mapped["Ayah | None"] = relationship()
+    options: Mapped[list["QuizOption"]] = relationship(
+        back_populates="question",
+        cascade="all, delete-orphan",
+        order_by="QuizOption.position",
+    )
+
+
+class QuizOption(Base):
+    """One answer choice of a question."""
+
+    __tablename__ = "quiz_option"
+    __table_args__ = (UniqueConstraint("question_id", "position"),)
+
+    id: Mapped[int] = mapped_column(primary_key=True)
+    question_id: Mapped[int] = mapped_column(ForeignKey("quiz_question.id"))
+    position: Mapped[int]
+    text: Mapped[str] = mapped_column(String(200))
+    is_correct: Mapped[bool]
+
+    question: Mapped["QuizQuestion"] = relationship(back_populates="options")
