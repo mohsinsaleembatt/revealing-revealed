@@ -34,3 +34,44 @@ class SourceOut(OrmModel):
     licence: str
     version: str | None
     notice: str | None
+
+
+class LessonSummary(OrmModel):
+    number: int
+    slug: str
+    title: str
+    goal: str
+    review_status: str
+
+
+class ModuleOut(OrmModel):
+    number: int
+    slug: str
+    title: str
+    summary: str
+    lessons: list[LessonSummary]
+
+
+class BlockOut(BaseModel):
+    position: int
+    kind: str  # "text" or "ayah"
+    body: str | None = None
+    note: str | None = None
+    # For verse blocks: the reference and the text read from the verified table.
+    ayah_reference: str | None = None
+    ayah_text: str | None = None
+    # For text blocks: the citation.
+    source_name: str | None = None
+    source_url: str | None = None
+    source_location: str | None = None
+
+
+class LessonDetail(BaseModel):
+    module_slug: str
+    module_title: str
+    number: int
+    slug: str
+    title: str
+    goal: str
+    review_status: str
+    blocks: list[BlockOut]

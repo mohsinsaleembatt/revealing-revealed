@@ -1,0 +1,79 @@
+"""Read-only endpoints that serve modules and lessons."""
+
+from typing import Annotated
+
+from fastapi import APIRouter, Depends, HTTPException
+from sqlalchemy import select
+from sqlalchemy.orm import Session, selectinload
+
+from app.database import get_session
+from app.models import Ayah, Lesson, LessonBlock, Module
+from app.schemas import BlockOut, LessonDetail, ModuleOut
+
+router = APIRouter(prefix="/learn", tags=["learn"])
+
+SessionDep = Annotated[Session, Depends(get_session)]
+
+
+def block_to_schema(block: LessonBlock) -> BlockOut:
+    """Turn a lesson block into what the API sends out.
+
+    A verse block carries no text of its own: its text is read from the
+    verified ayah table, exactly as stored.
+    """
+    data = {
+        "position": block.position,
+        "kind": block.kind,
+        "body": block.body,
+        "note": block.note,
+    }
+    if block.ayah is not None:
+        data["ayah_reference"] = f"{block.ayah.surah.number}:{block.ayah.number}"
+        data["ayah_text"] = block.ayah.text_uthmani
+    if block.source is not None:
+        data["source_name"] = block.source.name
+        data["source_url"] = block.source.url
+        data["source_location"] = block.source_location
+    return BlockOut(**data)
+
+
+@router.get("/modules")
+def list_modules(session: SessionDep) -> list[ModuleOut]:
+    """List all modules in order, each with its lessons."""
+    modules = session.scalars(
+        select(Module).options(selectinload(
+            Module.lessons)).order_by(Module.number)
+    )
+    return list(modules)
+
+
+@router.get("/modules/{module_slug}/lessons/{lesson_slug}")
+def get_lesson(
+    module_slug: str, lesson_slug: str, session: SessionDep
+) -> LessonDetail:
+    """Return one lesson with its blocks."""
+    lesson = session.scalars(
+        select(Lesson)
+        .join(Module, Lesson.module_id == Module.id)
+        .where(Module.slug == module_slug, Lesson.slug == lesson_slug)
+        .options(
+            selectinload(Lesson.module),
+            selectinload(Lesson.blocks)
+            .selectinload(LessonBlock.ayah)
+            .selectinload(Ayah.surah),
+            selectinload(Lesson.blocks).selectinload(LessonBlock.source),
+        )
+    ).one_or_none()
+    if lesson is None:
+        raise HTTPException(status_code=404, detail="Lesson not found")
+
+    return LessonDetail(
+        module_slug=lesson.module.slug,
+        module_title=lesson.module.title,
+        number=lesson.number,
+        slug=lesson.slug,
+        title=lesson.title,
+        goal=lesson.goal,
+        review_status=lesson.review_status,
+        blocks=[block_to_schema(block) for block in lesson.blocks],
+    )

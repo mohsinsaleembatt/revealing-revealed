@@ -11,10 +11,15 @@ export default function RootLayout({ children }) {
     <html lang="en">
       <body className="flex min-h-screen flex-col">
         <header className="border-b border-black/10 dark:border-white/20">
-          <div className="mx-auto max-w-4xl px-4 py-4">
+          <div className="mx-auto flex max-w-4xl items-center justify-between px-4 py-4">
             <Link href="/" className="text-lg font-semibold">
               Revealing Revealed
             </Link>
+            <nav className="flex gap-4 text-sm">
+              <Link href="/learn" className="underline">
+                Learn
+              </Link>
+            </nav>
           </div>
         </header>
 
