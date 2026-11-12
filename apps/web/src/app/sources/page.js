@@ -29,9 +29,11 @@ export default async function SourcesPage() {
                         {source.licence}
                         {source.version ? ` · version ${source.version}` : ""}
                     </p>
-                    <pre className="mt-3 overflow-x-auto whitespace-pre-wrap rounded-lg border border-black/10 p-4 text-xs dark:border-white/20">
-                        {source.notice}
-                    </pre>
+                    {source.notice && (
+                        <pre className="mt-3 overflow-x-auto whitespace-pre-wrap rounded-lg border border-black/10 p-4 text-xs dark:border-white/20">
+                            {source.notice}
+                        </pre>
+                    )}
                 </section>
             ))}
         </div>

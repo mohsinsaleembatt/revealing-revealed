@@ -1,0 +1,18 @@
+# TEST LESSON: it only checks that the lesson system works.
+# It will be replaced by real, cited and reviewed lessons.
+slug: system-test
+number: 1
+# title: "System test lesson"
+goal: "Check that lessons, verse references and review status work."
+review_status: draft
+
+blocks:
+  - kind: text
+    body: |
+      This lesson exists only to test the lesson system.
+      It contains no teaching content.
+
+  - kind: ayah
+    # Always put verse references in quotes: an unquoted 1:1 is read as a number.
+    ref: "1:1"
+    note: "The verse text is read from the database, not from this file."

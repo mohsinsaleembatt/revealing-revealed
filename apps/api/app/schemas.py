@@ -33,4 +33,4 @@ class SourceOut(OrmModel):
     url: str
     licence: str
     version: str | None
-    notice: str
+    notice: str | None

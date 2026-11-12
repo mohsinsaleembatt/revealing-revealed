@@ -10,6 +10,13 @@ function parseSurahNumber(value) {
     return Number.isInteger(number) && number >= 1 && number <= 114 ? number : null;
 }
 
+/** Tell Next.js which surah pages exist, so it can prepare them in advance. */
+export function generateStaticParams() {
+    return Array.from({ length: 114 }, (_, index) => ({
+        number: String(index + 1),
+    }));
+}
+
 export async function generateMetadata({ params }) {
     const { number } = await params;
     const surahNumber = parseSurahNumber(number);
@@ -32,7 +39,7 @@ export default async function SurahPage({ params }) {
                 <p className="opacity-70">
                     Surah {surah.number} · {surah.revelation_place}
                 </p>
-                <h1 dir="rtl" lang="ar" className={`${quranFont.className} mt-2 text-4xl`}>
+                <h1 dir="rtl" lang="ar" className={`${quranFont.className} mt-2 text-4xl leading-[1.8]`}>
                     {surah.name_arabic}
                 </h1>
                 <p className="mt-2 text-xl">
