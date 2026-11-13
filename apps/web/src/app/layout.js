@@ -1,47 +1,54 @@
 import "./globals.css";
-import Link from "next/link";
+import { Source_Sans_3, Source_Serif_4 } from "next/font/google";
+
+import SiteFooter from "@/components/SiteFooter";
+import SiteHeader from "@/components/SiteHeader";
+
+// Interface font and heading font. Next.js serves them from our own site.
+const sans = Source_Sans_3({
+  subsets: ["latin"],
+  variable: "--font-sans-ui",
+  display: "swap",
+});
+const serif = Source_Serif_4({
+  subsets: ["latin"],
+  variable: "--font-serif-ui",
+  display: "swap",
+});
 
 export const metadata = {
   title: "Revealing Revealed",
   description: "Learn the tools for understanding the Qur'an, starting with Arabic.",
 };
 
+export const instant = false;
+
+// Runs before the page is drawn, so a saved dark theme never flashes light first.
+const THEME_SCRIPT = `try{if(localStorage.getItem("theme")==="dark")document.documentElement.dataset.theme="dark"}catch(e){}`;
+
 export default function RootLayout({ children }) {
   return (
-    <html lang="en">
+    // suppressHydrationWarning: the script above may change <html> before React starts.
+    <html
+      lang="en"
+      className={`${sans.variable} ${serif.variable}`}
+      suppressHydrationWarning
+    >
+      <head>
+        <script dangerouslySetInnerHTML={{ __html: THEME_SCRIPT }} />
+      </head>
       <body className="flex min-h-screen flex-col">
-        <header className="border-b border-black/10 dark:border-white/20">
-          <div className="mx-auto flex max-w-4xl items-center justify-between px-4 py-4">
-            <Link href="/" className="text-lg font-semibold">
-              Revealing Revealed
-            </Link>
-            <nav className="flex gap-4 text-sm">
-              <Link href="/learn" className="underline">
-                Learn
-              </Link>
-            </nav>
-          </div>
-        </header>
-
-        <main className="mx-auto w-full max-w-4xl flex-1 px-4 py-8">
+        <a
+          href="#main"
+          className="sr-only focus:not-sr-only focus:absolute focus:left-2 focus:top-2 focus:z-50 focus:rounded-lg focus:bg-accent focus:px-4 focus:py-2 focus:text-accent-ink"
+        >
+          Skip to content
+        </a>
+        <SiteHeader />
+        <main id="main" className="flex-1">
           {children}
         </main>
-
-        <footer className="border-t border-black/10 text-sm dark:border-white/20">
-          <div className="mx-auto max-w-4xl px-4 py-6 opacity-80">
-            Qur&apos;anic text from the{" "}
-            <a
-              href="https://tanzil.net"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="underline"
-            >
-              Tanzil Project (tanzil.net)
-            </a>
-            , licensed under Creative Commons Attribution 3.0 and shown
-            unmodified. <Link href="/sources" className="underline">Sources and notices</Link>
-          </div>
-        </footer>
+        <SiteFooter />
       </body>
     </html>
   );

@@ -34,7 +34,7 @@ export default async function SurahPage({ params }) {
     if (!surah) notFound();
 
     return (
-        <article>
+        <article className="container-reading">
             <header className="text-center">
                 <p className="opacity-70">
                     Surah {surah.number} · {surah.revelation_place}

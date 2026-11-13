@@ -21,7 +21,7 @@ export default async function LessonPage({ params }) {
         )) ?? [];
 
     return (
-        <article>
+        <article className="container-reading">
             <p className="text-sm opacity-70">
                 <Link href="/learn" className="underline">
                     Learn

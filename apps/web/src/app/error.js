@@ -2,7 +2,7 @@
 
 export default function Error({ reset }) {
     return (
-        <div className="py-16 text-center">
+        <div className="container-reading py-16 text-center">
             <h1 className="text-2xl font-semibold">Something went wrong</h1>
             <p className="mt-2 opacity-70">
                 The server may be unavailable. Please try again.

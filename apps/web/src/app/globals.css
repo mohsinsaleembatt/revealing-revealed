@@ -1,26 +1,111 @@
 @import "tailwindcss";
 
+/* Make "dark:" classes follow our theme switch, not only the system setting. */
+@custom-variant dark (&:where([data-theme="dark"], [data-theme="dark"] *));
+
+/* Design tokens: light theme (the default). */
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  --paper: #f6f1e7; /* page background */
+  --raised: #fffbf2; /* cards */
+  --band: #efe7d6; /* soft bands and the footer */
+  --ink: #1f1b16; /* main text */
+  --mute: #5a5348; /* secondary text */
+  --line: #ddd3bf; /* borders */
+  --accent: #0f5c5c; /* links and buttons */
+  --accent-ink: #ffffff; /* text on the accent colour */
+  --gold: #b08a3e; /* decoration only, never for text */
+  --page: #fffdf7; /* the Qur'an reading page */
+  color-scheme: light;
 }
 
+/* The same names, redefined for the dark theme. */
+[data-theme="dark"] {
+  --paper: #15130f;
+  --raised: #1e1b15;
+  --band: #1d1a14;
+  --ink: #ece6d8;
+  --mute: #b5ad9c;
+  --line: #3a352b;
+  --accent: #5fc4c0;
+  --accent-ink: #0b1e1e;
+  --gold: #b08a3e;
+  --page: #1b1812;
+  color-scheme: dark;
+}
+
+/* Make the tokens available as Tailwind classes: bg-paper, text-ink, border-line... */
 @theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
-}
-
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
+  --color-paper: var(--paper);
+  --color-raised: var(--raised);
+  --color-band: var(--band);
+  --color-ink: var(--ink);
+  --color-mute: var(--mute);
+  --color-line: var(--line);
+  --color-accent: var(--accent);
+  --color-accent-ink: var(--accent-ink);
+  --color-gold: var(--gold);
+  --color-page: var(--page);
+  --font-sans: var(--font-sans-ui), system-ui, sans-serif;
+  --font-serif: var(--font-serif-ui), Georgia, serif;
 }
 
 body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  background: var(--paper);
+  color: var(--ink);
+  font-family: var(--font-sans);
+  font-size: 1.0625rem;
+  line-height: 1.6;
+}
+
+/* Clear keyboard focus for everyone who navigates without a mouse. */
+:focus-visible {
+  outline: 3px solid var(--accent);
+  outline-offset: 3px;
+}
+
+/* Show one label or the other depending on the theme (used by the theme button). */
+[data-theme="dark"] .only-light {
+  display: none;
+}
+:root:not([data-theme="dark"]) .only-dark {
+  display: none;
+}
+
+/* People who ask their system for less motion get (almost) none. */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  ::before,
+  ::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+
+/* Width and spacing for reading pages. */
+.container-reading {
+  width: 100%;
+  max-width: 56rem;
+  margin-inline: auto;
+  padding: 2rem 1rem;
+}
+
+/* The hero glow fades in once, then stays still. */
+.hero-glow {
+  animation: hero-glow-in 2.5s ease-out both;
+}
+@keyframes hero-glow-in {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 0.9;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .hero-glow {
+    animation: none;
+    opacity: 0.9;
+  }
 }

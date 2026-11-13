@@ -9,7 +9,7 @@ export default async function LearnPage() {
     const modules = await apiGet("/learn/modules");
 
     return (
-        <div>
+        <div className="container-reading">
             <h1 className="text-3xl font-semibold">Learn</h1>
             <p className="mt-2 opacity-70">
                 Lessons are labelled with their review status.
