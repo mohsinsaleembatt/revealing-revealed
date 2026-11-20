@@ -7,6 +7,7 @@ import { usePathname } from "next/navigation";
 const LINKS = [
     { href: "/quran", label: "Quran", paths: ["/quran", "/surah"] },
     { href: "/learn", label: "Learn", paths: ["/learn"] },
+    { href: "/notes", label: "My notes", paths: ["/notes"] },
     { href: "/sources", label: "Sources", paths: ["/sources"] },
 ];
 
