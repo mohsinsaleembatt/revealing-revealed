@@ -114,3 +114,73 @@ def read_metadata_notice() -> str:
         elif notice:
             break  # the header ends at the first line that is not a comment
     return "\n".join(notice)
+
+
+def read_juz_starts() -> list[tuple[int, int]]:
+    """Read the 30 juz starting points from quran-data.js.
+
+    Each row is [surah, ayah]: where that juz begins. The last row is an
+    end-of-array marker (the position just after the last juz, surah 115
+    does not exist) and is dropped, not a 31st juz.
+    """
+    lines = METADATA_FILE.read_text(encoding="utf-8-sig").splitlines()
+    first = next(
+        i for i, line in enumerate(lines) if line.startswith("QuranData.Juz = [")
+    )
+
+    rows_text = []
+    for line in lines[first + 1:]:
+        stripped = line.strip()
+        if stripped.startswith("];"):
+            break
+        if stripped and not stripped.startswith("//"):
+            rows_text.append(stripped)
+
+    rows = [row for row in ast.literal_eval(
+        "[" + "\n".join(rows_text) + "]") if row]
+
+    # Drop the trailing end marker: its surah number (115) does not exist.
+    if rows and rows[-1][0] > 114:
+        rows = rows[:-1]
+
+    starts = []
+    for index, row in enumerate(rows, start=1):
+        if len(row) != 2:
+            raise ValueError(
+                f"Juz row {index} has {len(row)} fields instead of 2")
+        starts.append((row[0], row[1]))
+    return starts
+
+
+def read_page_starts() -> list[tuple[int, int]]:
+    """Read the Mushaf page starting points from quran-data.js.
+
+    Each row is [surah, ayah]: where that page begins. The array has an empty
+    first row and a final end marker (surah 115 does not exist); neither is a
+    page.
+    """
+    lines = METADATA_FILE.read_text(encoding="utf-8-sig").splitlines()
+    first = next(
+        i for i, line in enumerate(lines) if line.startswith("QuranData.Page = [")
+    )
+
+    rows_text = []
+    for line in lines[first + 1:]:
+        stripped = line.strip()
+        if stripped.startswith("];"):
+            break
+        if stripped and not stripped.startswith("//"):
+            rows_text.append(stripped)
+
+    rows = [row for row in ast.literal_eval(
+        "[" + "\n".join(rows_text) + "]") if row]
+    if rows and rows[-1][0] > 114:
+        rows = rows[:-1]
+
+    starts = []
+    for index, row in enumerate(rows, start=1):
+        if len(row) != 2:
+            raise ValueError(
+                f"Page row {index} has {len(row)} fields instead of 2")
+        starts.append((row[0], row[1]))
+    return starts

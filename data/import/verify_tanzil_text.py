@@ -109,6 +109,41 @@ def check_surahs(surahs: list[dict], verses: list[tuple[int, int, str]]) -> list
     return problems
 
 
+def check_juz(juz_starts: list[tuple[int, int]]) -> list[str]:
+    """Check that there are 30 juz, starting at 1:1, in increasing order."""
+    problems = []
+    if len(juz_starts) != 30:
+        problems.append(f"Found {len(juz_starts)} juz entries, expected 30")
+    if juz_starts and juz_starts[0] != (1, 1):
+        problems.append(f"Juz 1 should start at 1:1, found {juz_starts[0]}")
+
+    previous = (0, 0)
+    for index, start in enumerate(juz_starts, start=1):
+        if start <= previous:
+            problems.append(
+                f"Juz {index} ({start}) is not after juz {index - 1}")
+        previous = start
+    return problems
+
+
+def check_pages(page_starts: list[tuple[int, int]]) -> list[str]:
+    """Check that there are 604 pages, starting at 1:1 then 2:1, in order."""
+    problems = []
+    if len(page_starts) != 604:
+        problems.append(f"Found {len(page_starts)} page entries, expected 604")
+    if page_starts[:2] != [(1, 1), (2, 1)]:
+        problems.append(
+            f"Pages 1 and 2 should start at 1:1 and 2:1, found {page_starts[:2]}")
+
+    previous = (0, 0)
+    for index, start in enumerate(page_starts, start=1):
+        if start <= previous:
+            problems.append(
+                f"Page {index} ({start}) is not after page {index - 1}")
+        previous = start
+    return problems
+
+
 def main() -> int:
     verses = read_verses()
     surahs = read_surahs()

@@ -98,3 +98,46 @@ class AnswerResult(BaseModel):
     correct: bool
     correct_option_id: int
     explanation: str
+
+
+class JuzSummary(BaseModel):
+    number: int
+    start_reference: str  # e.g. "1:1"
+    end_reference: str  # e.g. "2:141"
+    ayah_count: int
+
+
+class JuzSurahOut(BaseModel):
+    number: int
+    name_arabic: str
+    name_transliteration: str
+    name_english: str
+    first_ayah_number: int
+    last_ayah_number: int
+    verses_in_juz: int
+    total_verses: int
+    is_complete: bool  # whether the whole surah falls inside this juz
+
+
+class JuzDetail(JuzSummary):
+    surahs: list[JuzSurahOut]
+
+
+class PageSurah(BaseModel):
+    number: int
+    name_arabic: str
+    name_transliteration: str
+    name_english: str
+
+
+class PageVerse(BaseModel):
+    surah_number: int
+    number: int
+    text_uthmani: str  # exactly as stored from the verified source
+
+
+class PageDetail(BaseModel):
+    number: int
+    juz_number: int | None
+    surahs: list[PageSurah]
+    verses: list[PageVerse]

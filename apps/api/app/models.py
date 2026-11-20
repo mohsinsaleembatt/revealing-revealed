@@ -162,3 +162,29 @@ class QuizOption(Base):
     is_correct: Mapped[bool]
 
     question: Mapped["QuizQuestion"] = relationship(back_populates="options")
+
+
+class Juz(Base):
+    """One of the Qur'an's 30 traditional parts, as a range of verses."""
+
+    __tablename__ = "juz"
+
+    id: Mapped[int] = mapped_column(primary_key=True)
+    number: Mapped[int] = mapped_column(unique=True)  # 1 to 30
+    start_ayah_id: Mapped[int] = mapped_column(ForeignKey("ayah.id"))
+    end_ayah_id: Mapped[int] = mapped_column(ForeignKey("ayah.id"))
+
+    # Two separate links to the same table need foreign_keys to tell them apart.
+    start_ayah: Mapped["Ayah"] = relationship(foreign_keys=[start_ayah_id])
+    end_ayah: Mapped["Ayah"] = relationship(foreign_keys=[end_ayah_id])
+
+
+class MushafPage(Base):
+    """One of the 604 pages of the Mushaf, as a range of verses."""
+
+    __tablename__ = "mushaf_page"
+
+    id: Mapped[int] = mapped_column(primary_key=True)
+    number: Mapped[int] = mapped_column(unique=True)  # 1 to 604
+    start_ayah_id: Mapped[int] = mapped_column(ForeignKey("ayah.id"))
+    end_ayah_id: Mapped[int] = mapped_column(ForeignKey("ayah.id"))
