@@ -162,3 +162,5 @@ Thumbs.db
 .vscode/
 
 babel.json
+
+.pytest_cache/

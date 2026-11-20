@@ -188,3 +188,26 @@ class MushafPage(Base):
     number: Mapped[int] = mapped_column(unique=True)  # 1 to 604
     start_ayah_id: Mapped[int] = mapped_column(ForeignKey("ayah.id"))
     end_ayah_id: Mapped[int] = mapped_column(ForeignKey("ayah.id"))
+
+
+class User(Base):
+    """A learner or staff account."""
+
+    # "user" is a reserved word in PostgreSQL, so the table gets another name.
+    __tablename__ = "user_account"
+
+    id: Mapped[int] = mapped_column(primary_key=True)
+    email: Mapped[str] = mapped_column(
+        String(254), unique=True)  # stored lower-case
+    email_verified_at: Mapped[datetime | None] = mapped_column(
+        DateTime(timezone=True))
+    password_hash: Mapped[str] = mapped_column(String(255))
+    display_name: Mapped[str] = mapped_column(String(50))
+    role: Mapped[str] = mapped_column(String(20), default="learner")
+    status: Mapped[str] = mapped_column(String(20), default="active")
+    consent_at: Mapped[datetime] = mapped_column(DateTime(timezone=True))
+    created_at: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True), server_default=func.now()
+    )
+    last_sign_in_at: Mapped[datetime | None] = mapped_column(
+        DateTime(timezone=True))

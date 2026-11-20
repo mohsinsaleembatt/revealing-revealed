@@ -1,6 +1,14 @@
 """Shapes of the data the API sends out."""
 
-from pydantic import BaseModel, ConfigDict
+from pydantic import (
+    BaseModel,
+    ConfigDict,
+    EmailStr,
+    field_validator,
+    model_validator,
+)
+
+from app.validation import validate_display_name, validate_password
 
 
 class OrmModel(BaseModel):
@@ -141,3 +149,50 @@ class PageDetail(BaseModel):
     juz_number: int | None
     surahs: list[PageSurah]
     verses: list[PageVerse]
+
+
+class MessageOut(BaseModel):
+    message: str
+
+
+class SignUpIn(BaseModel):
+    display_name: str
+    email: EmailStr
+    password: str
+    accepted_terms: bool
+
+    @field_validator("display_name")
+    @classmethod
+    def check_display_name(cls, value: str) -> str:
+        return validate_display_name(value)
+
+    @field_validator("email")
+    @classmethod
+    def lower_case_email(cls, value: str) -> str:
+        # One spelling per address, so Test@x.com and test@x.com are the same account.
+        return value.lower()
+
+    @field_validator("password")
+    @classmethod
+    def check_password(cls, value: str) -> str:
+        return validate_password(value)
+
+    @field_validator("accepted_terms")
+    @classmethod
+    def check_terms(cls, value: bool) -> bool:
+        if not value:
+            raise ValueError("You must accept the terms to create an account.")
+        return value
+
+    @model_validator(mode="after")
+    def password_must_not_contain_personal_details(self) -> "SignUpIn":
+        password = self.password.lower()
+        local_part = self.email.split("@")[0]
+        if (
+            password == self.display_name.lower()
+            or password == self.email
+            or (len(local_part) >= 6 and local_part in password)
+        ):
+            raise ValueError(
+                "Do not use your name or email address in your password.")
+        return self
